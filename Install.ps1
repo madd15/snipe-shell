@@ -48,6 +48,18 @@ function Expand-ZIPFile($file, $destination) {
 function Is64Bit {  
 	[IntPtr]::Size -eq 8  
 }
+function installWPI ($prod, $Language) {
+    $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
+    $installer = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Installer]'
+    $installerToUse = $prod.GetInstaller($Language)
+    $installer.Add($installerToUse)
+    $InstallManager.load($installer)
+    $failureReason=$null
+    foreach ($installerContext in $InstallManager.InstallerContexts) {
+        $InstallManager.DownloadInstallerFile($installerContext, [ref]$failureReason)
+    }
+    $InstallManager.StartInstallation()
+}
 
 #####################################
 Clear-Host
@@ -62,27 +74,23 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 Write-Output "Installing Web Platform Installer"
 msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
 
-## Load Web Platform Installer
 try {
+    ## Load Web Platform Installer
     [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") | Out-Null
     $ProductManager = New-Object Microsoft.Web.PlatformInstaller.ProductManager
-    $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
-    $installer = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Installer]'
- 
     $ProductManager.Load()
     $Language = $ProductManager.GetLanguage("en")
-    $product = $ProductManager.Products | Where { $_.ProductId -eq $php }
-    $installerToUse = $product.GetInstaller($Language)
-    $installer.Add($installerToUse)
-    $InstallManager.load($installer)
-    $failureReason=$null
-    foreach ($installerContext in $InstallManager.InstallerContexts) {
-        $InstallManager.DownloadInstallerFile($installerContext, [ref]$failureReason)
-    }
-    $InstallManager.StartInstallation()
+
+    try {
+        ## Install PHP via WPI
+        $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
+        installWPI($productPHP, $Language)
+     }
+     catch {
+        Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
+     }
 }
 catch {
-    Write-Output $failureReason
     Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
 }
 
