@@ -112,9 +112,9 @@ try {
 
     $InstallManager.StartSynchronousInstallation()
 
-    notepad $product.Installers[1].LogFiles
+    notepad $productPHP.Installers[1].LogFiles
 
-    Write-Host "Opening logs at $($product.Installers[1].LogFiles)"
+    Write-Host "Opening logs at $($productPHP.Installers[1].LogFiles)"
     Write-Host "Installation finished"
 
 }
