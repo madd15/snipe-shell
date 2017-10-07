@@ -58,8 +58,10 @@ Write-Output "Downloading $WPI"
 $start_time = Get-Date
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($WPI, "$PSScriptRoot\wpi.msi")
-msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+Write-Output "Installing WebPlatform Installer"
+msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
+
 
 try {
     [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") | Out-Null
