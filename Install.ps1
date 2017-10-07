@@ -74,23 +74,22 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 Write-Output "Installing Web Platform Installer"
 msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
 
+## Load Web Platform Installer
 try {
-    ## Load Web Platform Installer
     [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") | Out-Null
     $ProductManager = New-Object Microsoft.Web.PlatformInstaller.ProductManager
     $ProductManager.Load()
     $Language = $ProductManager.GetLanguage("en")
-
-    try {
-        ## Install PHP via WPI
-        $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
-        installWPI($productPHP, $Language)
-     }
-     catch {
-        Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
-     }
 }
 catch {
     Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
 }
 
+## Install PHP via WPI
+try {
+    $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
+    installWPI($productPHP, $Language)
+    }
+    catch {
+    Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
+    }
