@@ -59,14 +59,30 @@ $start_time = Get-Date
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($WPI, "$PSScriptRoot\wpi.msi")
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
-Write-Output "Installing WebPlatform Installer"
+Write-Output "Installing Web Platform Installer"
 msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
 
-
+## Load Web Platform Installer
 try {
     [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") | Out-Null
-    Write-Host('Done')
+    $ProductManager = New-Object Microsoft.Web.PlatformInstaller.ProductManager
+    $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
+    $installer = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Installer]'
+ 
+    $ProductManager.Load()
+    $Language = $ProductManager.GetLanguage("en")
+    $product = $ProductManager.Products | Where { $_.ProductId -eq $php }
+    $installerToUse = $product.GetInstaller($Language)
+    $installer.Add($installerToUse)
+    $InstallManager.load($installer)
+    $failureReason=$null
+    foreach ($installerContext in $InstallManager.InstallerContexts) {
+        $InstallManager.DownloadInstallerFile($installerContext, [ref]$failureReason)
+    }
+    $InstallManager.StartInstallation()
 }
 catch {
-    Write-Host('error')
+    Write-Output $failureReason
+    Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
 }
+
