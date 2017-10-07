@@ -96,5 +96,5 @@ try {
     installWPI($productPHP, $Language)
 }
 catch {
-Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
+Write-Host "Unable to Install PHP" -ForegroundColor Red
 }
