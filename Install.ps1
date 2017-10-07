@@ -77,6 +77,7 @@ msiexec.exe /i '$PSScriptRoot\wpi.msi' /passive
 ## Load Web Platform Installer
 try {
     [reflection.assembly]::LoadWithPartialName("Microsoft.Web.PlatformInstaller") | Out-Null
+    Write-Output "Loading Web Platform Installer"
     $ProductManager = New-Object Microsoft.Web.PlatformInstaller.ProductManager
     $ProductManager.Load()
     $Language = $ProductManager.GetLanguage("en")
@@ -87,9 +88,10 @@ catch {
 
 ## Install PHP via WPI
 try {
+    Write-Output "Installing PHP via Web Platform Installer"
     $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
     installWPI($productPHP, $Language)
-    }
-    catch {
-    Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
-    }
+}
+catch {
+Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
+}
