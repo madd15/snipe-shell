@@ -7,12 +7,12 @@ Set-ConsoleFont 11
 if (Is64Bit) {
     $php = "PHP71x64"
     $winCache = "WinCache70x64"
-    $WPI = "https://download.microsoft.com/download/C/F/F/CFF3A0B8-99D4-41A2-AE1A-496C08BEB904/WebPlatformInstaller_amd64_en-US.msi"
+    $WPI = "http://download.microsoft.com/download/C/F/F/CFF3A0B8-99D4-41A2-AE1A-496C08BEB904/WebPlatformInstaller_amd64_en-US.msi"
 }
 else {
     $php = "PHP71"
     $winCache = "WinCache70x86"
-    $WPI = "https://download.microsoft.com/download/C/F/F/CFF3A0B8-99D4-41A2-AE1A-496C08BEB904/WebPlatformInstaller_x86_en-US.msi"
+    $WPI = "http://download.microsoft.com/download/C/F/F/CFF3A0B8-99D4-41A2-AE1A-496C08BEB904/WebPlatformInstaller_x86_en-US.msi"
 }
 
 $phpMan = "PHPManager"
@@ -22,8 +22,7 @@ Clear-Host
 title
 
 ## Download Web Platform Installer ##
-$wc = New-Object System.Net.WebClient
-$wc.DownloadFile($WPI, "wpi.msi")
+downloadFile($WPI, "wpi.msi")
 msiexec.exe /i wpi.msi /passive
 
 try {
