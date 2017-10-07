@@ -91,15 +91,15 @@ try {
 
     ## Get dependencies
     $deplist = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Product]'
-    $deplist.add($productPHP)
+    $deplist.Add($productPHP)
     $deps = $productPHP.getMissingDependencies($deplist)
     foreach ($dep in $deps) {
         Write-Host "$($dep.GetInstaller($Language))"
-        $installer.add($dep.GetInstaller($Language))
+        $installer.Add($dep.GetInstaller($Language))
         Write-Host "Dependency $($dep.Title) not found..."
     }
 
-    $installer.Add($product.Installers[1])
+    $installer.Add($productPHP.Installers[1])
     $InstallManager.Load($installer)
 
     #Download the installer package
