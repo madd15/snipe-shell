@@ -87,6 +87,9 @@ catch {
 }
 
 ## Install PHP via WPI
+$result = $ProductManager.Products | Where { $_.ProductId -eq $php -and $_.IsInstalled($false)}
+Write-Output $result
+pause
 try {
     Write-Output "Installing PHP via Web Platform Installer"
     $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
