@@ -76,9 +76,6 @@ catch {
 }
 
 ## Install PHP via WPI
-$result = $ProductManager.Products | Where { $_.ProductId -eq $php -and $_.IsInstalled($false)}
-Write-Output $result
-pause
 try {
     Write-Output "Installing PHP via Web Platform Installer"
     $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
@@ -92,14 +89,14 @@ try {
     ## Get dependencies
     $deplist = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Product]'
     $deplist.Add($productPHP)
-    $deps = $productPHP.getMissingDependencies($deplist)
+    $deps = $product.getMissingDependencies($deplist)
     foreach ($dep in $deps) {
         Write-Host "$($dep.GetInstaller($Language))"
         $installer.Add($dep.GetInstaller($Language))
         Write-Host "Dependency $($dep.Title) not found..."
     }
 
-    $installer.Add($productPHP.Installers[1])
+    $installer.Add($product.Installers[1])
     $InstallManager.Load($installer)
 
     #Download the installer package
@@ -112,9 +109,9 @@ try {
 
     $InstallManager.StartSynchronousInstallation()
 
-    notepad $productPHP.Installers[1].LogFiles
+    notepad $product.Installers[1].LogFiles
 
-    Write-Host "Opening logs at $($productPHP.Installers[1].LogFiles)"
+    Write-Host "Opening logs at $($product.Installers[1].LogFiles)"
     Write-Host "Installation finished"
 
 }
