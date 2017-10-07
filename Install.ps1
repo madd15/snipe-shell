@@ -72,7 +72,9 @@ try {
     $ProductManager.Load()
 }
 catch {
-    Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
+    Write-Error "FATAL ERROR! $($_)"
+    pause
+    exit
 }
 
 ## Install PHP via WPI
@@ -111,6 +113,8 @@ try {
     Write-Host "Installation finished"
 
 }
-Catch {
+catch {
     Write-Error "FATAL ERROR! $($_)"
+    pause
+    exit
 }
