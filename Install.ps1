@@ -1,5 +1,5 @@
 ﻿Import-Module .\psfont.psm1
-Set-ConsoleFont 11
+#Set-ConsoleFont 11
 
 ##################################### FUNCTIONS ##########################################################################################
 function title {
@@ -78,7 +78,7 @@ catch {
 ## Install PHP via WPI
 try {
     Write-Output "Installing PHP via Web Platform Installer"
-    $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
+    $product = $ProductManager.Products | Where { $_.ProductId -eq $php }
     
     $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
 
@@ -88,15 +88,14 @@ try {
 
     ## Get dependencies
     $deplist = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Product]'
-    $deplist.Add($productPHP)
+    $deplist.Add($product)
     $deps = $product.getMissingDependencies($deplist)
     foreach ($dep in $deps) {
-        Write-Host "$($dep.GetInstaller($Language))"
         $installer.Add($dep.GetInstaller($Language))
-        Write-Host "Dependency $($dep.Title) not found..."
+        Write-Host "Dependency $($dep.Title) found"
     }
 
-    $installer.Add($product.Installers[1])
+    $installer.Add($product.GetInstaller($Language))
     $InstallManager.Load($installer)
 
     #Download the installer package
@@ -109,9 +108,6 @@ try {
 
     $InstallManager.StartSynchronousInstallation()
 
-    notepad $product.Installers[1].LogFiles
-
-    Write-Host "Opening logs at $($product.Installers[1].LogFiles)"
     Write-Host "Installation finished"
 
 }
