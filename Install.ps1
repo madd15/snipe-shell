@@ -22,7 +22,8 @@ Clear-Host
 title
 
 ## Download Web Platform Installer ##
-downloadFile($WPI, 'wpi.msi')
+$wc = New-Object System.Net.WebClient
+$wc.DownloadFile($WPI, "wpi.msi")
 msiexec.exe /i wpi.msi /passive
 
 try {
