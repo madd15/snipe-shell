@@ -34,16 +34,7 @@ function Is64Bit {
 	[IntPtr]::Size -eq 8  
 }
 function installWPI ($prod, $Language) {
-    $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
-    $installer = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Installer]'
-    $installerToUse = $prod.GetInstaller($Language)
-    $installer.Add($installerToUse)
-    $InstallManager.load($installer)
-    $failureReason=$null
-    foreach ($installerContext in $InstallManager.InstallerContexts) {
-        $InstallManager.DownloadInstallerFile($installerContext, [ref]$failureReason)
-    }
-    $InstallManager.StartInstallation()
+   
 }
 
 ## IIS Web Platform Installer Variables ##
@@ -79,7 +70,6 @@ try {
     Write-Output "Loading Web Platform Installer"
     $ProductManager = New-Object Microsoft.Web.PlatformInstaller.ProductManager
     $ProductManager.Load()
-    $Language = $ProductManager.GetLanguage("en")
 }
 catch {
     Write-Host "Unable to load Web Platform Installer" -ForegroundColor Red
@@ -92,8 +82,42 @@ pause
 try {
     Write-Output "Installing PHP via Web Platform Installer"
     $productPHP = $ProductManager.Products | Where { $_.ProductId -eq $php }
-    installWPI($productPHP, $Language)
+    
+    $InstallManager = New-Object Microsoft.Web.PlatformInstaller.InstallManager
+
+    $installer = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Installer]'
+
+    $Language = $ProductManager.GetLanguage("en")
+
+    ## Get dependencies
+    $deplist = New-Object 'System.Collections.Generic.List[Microsoft.Web.PlatformInstaller.Product]'
+    $deplist.add($productPHP)
+    $deps = $productPHP.getMissingDependencies($deplist)
+    foreach ($dep in $deps) {
+        Write-Host "$($dep.GetInstaller($Language))"
+        $installer.add($dep.GetInstaller($Language))
+        Write-Host "Dependency $($dep.Title) not found..."
+    }
+
+    $installer.Add($product.Installers[1])
+    $InstallManager.Load($installer)
+
+    #Download the installer package
+    $failureReason=$null
+    foreach ($installerContext in $InstallManager.InstallerContexts) {
+        $InstallManager.DownloadInstallerFile($installerContext, [ref]$failureReason)
+
+        Write-Host $($installerContext)
+    }
+
+    $InstallManager.StartSynchronousInstallation()
+
+    notepad $product.Installers[1].LogFiles
+
+    Write-Host "Opening logs at $($product.Installers[1].LogFiles)"
+    Write-Host "Installation finished"
+
 }
-catch {
-Write-Host "Unable to Install PHP" -ForegroundColor Red
+Catch {
+    Write-Error "FATAL ERROR! $($_)"
 }
